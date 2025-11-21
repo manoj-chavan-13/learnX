@@ -56,7 +56,7 @@ const generateAIResponse = async (apiKey, promptText, docContext) => {
 
   if (apiKey.trim().startsWith("npm")) {
     throw new Error(
-      "Invalid Key. You pasted the installation command. Please enter your actual Gemini API Key (starts with 'AIza' or 'sk-')."
+      "Invalid Key. You pasted the installation command. Please enter your actual Gemini API Key."
     );
   }
 
@@ -114,26 +114,29 @@ const GlobalStyles = () => (
     
     :root { --bg-deep: #050505; }
 
-    body {
+    /* Mobile-First Reset */
+    html, body {
       background-color: var(--bg-deep);
       font-family: 'Outfit', sans-serif;
       color: #e2e8f0;
-      overflow: hidden;
+      height: 100%;
+      width: 100%;
+      overflow: hidden; /* Handle scroll in react root */
+      -webkit-tap-highlight-color: transparent;
     }
 
     /* Custom Scrollbar */
-    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar { width: 4px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
-    ::-webkit-scrollbar-thumb:hover { background: #555; }
-
-    /* Markdown Styles */
-    .prose p { margin-bottom: 0.8em; line-height: 1.7; }
-    .prose strong { font-weight: 700; }
-    .prose ul { list-style-type: disc; padding-left: 1.5em; margin-bottom: 1em; }
-    .prose ol { list-style-type: decimal; padding-left: 1.5em; margin-bottom: 1em; }
     
-    /* NEXUS (BOT) STYLES */
+    /* Markdown Styles */
+    .prose p { margin-bottom: 0.8em; line-height: 1.6; font-size: 0.95rem; }
+    .prose strong { font-weight: 700; }
+    .prose ul { list-style-type: disc; padding-left: 1.2em; margin-bottom: 1em; }
+    .prose ol { list-style-type: decimal; padding-left: 1.2em; margin-bottom: 1em; }
+    
+    /* NEXUS STYLES */
     .nexus-content p { color: #cbd5e1; }
     .nexus-content strong { color: #fff; }
     .nexus-content h1, .nexus-content h2 { 
@@ -142,7 +145,8 @@ const GlobalStyles = () => (
       -webkit-background-clip: text; 
       background-clip: text; 
       font-weight: 800; 
-      margin-top: 1.5em;
+      margin-top: 1.2em;
+      font-size: 1.1em;
     }
     .nexus-content code { 
       font-family: 'JetBrains Mono', monospace; 
@@ -150,6 +154,7 @@ const GlobalStyles = () => (
       color: #f472b6; 
       padding: 2px 6px; 
       border-radius: 4px; 
+      font-size: 0.85em;
     }
     .nexus-content pre { background: #0f0f11 !important; border: 1px solid #333; border-radius: 12px; padding: 1em; overflow-x: auto; }
 
@@ -157,17 +162,16 @@ const GlobalStyles = () => (
     .user-content p, .user-content span, .user-content strong, .user-content li {
         color: #0f172a !important;
     }
-    .user-content h1, .user-content h2 { color: #000000 !important; }
     
     /* Animations */
+    .animate-blob { animation: blob 10s infinite; }
+    .animation-delay-2000 { animation-delay: 2s; }
     @keyframes blob {
       0% { transform: translate(0px, 0px) scale(1); }
       33% { transform: translate(30px, -50px) scale(1.1); }
       66% { transform: translate(-20px, 20px) scale(0.9); }
       100% { transform: translate(0px, 0px) scale(1); }
     }
-    .animate-blob { animation: blob 10s infinite; }
-    .animation-delay-2000 { animation-delay: 2s; }
   `}</style>
 );
 
@@ -181,30 +185,28 @@ const Button = ({
   fullWidth = false,
 }) => {
   const variants = {
-    primary:
-      "bg-white text-black hover:scale-105 hover:shadow-[0_0_20px_rgba(255,255,255,0.4)] border-transparent",
+    primary: "bg-white text-black active:scale-95 border-transparent",
     royal:
-      "bg-gradient-to-r from-violet-600 via-indigo-600 to-blue-600 text-white border border-white/10 hover:shadow-[0_0_20px_rgba(139,92,246,0.5)]",
+      "bg-gradient-to-r from-violet-600 via-indigo-600 to-blue-600 text-white border border-white/10 active:scale-95",
     glass:
-      "bg-white/5 backdrop-blur-md border border-white/10 text-slate-300 hover:bg-white/10 hover:text-white",
+      "bg-white/5 backdrop-blur-md border border-white/10 text-slate-300 active:bg-white/10 active:text-white",
     danger:
-      "bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20 hover:shadow-[0_0_15px_rgba(239,68,68,0.2)]",
+      "bg-red-500/10 border border-red-500/20 text-red-400 active:bg-red-500/20",
   };
 
   return (
-    <motion.button
-      whileTap={{ scale: 0.95 }}
+    <button
       onClick={onClick}
       disabled={disabled}
       className={`
-        relative flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-bold tracking-wide text-sm transition-all duration-300
+        relative flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-bold tracking-wide text-sm transition-all duration-200
         disabled:opacity-50 disabled:cursor-not-allowed
         ${variants[variant]} ${fullWidth ? "w-full" : ""} ${className}
       `}
     >
       {Icon && <Icon size={18} />}
       {children}
-    </motion.button>
+    </button>
   );
 };
 
@@ -215,14 +217,14 @@ const Modal = ({ isOpen, title, children, onClose }) => (
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 bg-black/80 backdrop-blur-md z-[100] flex items-center justify-center p-4"
+        className="fixed inset-0 bg-black/90 backdrop-blur-md z-[100] flex items-center justify-center p-4"
         onClick={onClose}
       >
         <motion.div
           initial={{ scale: 0.95, y: 20, opacity: 0 }}
           animate={{ scale: 1, y: 0, opacity: 1 }}
           exit={{ scale: 0.95, y: 20, opacity: 0 }}
-          className="bg-[#0f0f11] border border-white/10 p-8 rounded-3xl w-full max-w-sm shadow-2xl relative overflow-hidden"
+          className="bg-[#0f0f11] border border-white/10 p-6 w-full max-w-sm rounded-3xl shadow-2xl relative overflow-hidden"
           onClick={(e) => e.stopPropagation()}
         >
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-violet-500 to-cyan-500" />
@@ -241,37 +243,37 @@ const Modal = ({ isOpen, title, children, onClose }) => (
 );
 
 const ToastContainer = ({ toasts }) => (
-  <div className="fixed bottom-6 right-6 z-[110] flex flex-col gap-2 pointer-events-none">
+  <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[110] flex flex-col gap-2 pointer-events-none w-[90%] max-w-sm">
     <AnimatePresence>
       {toasts.map((toast) => (
         <motion.div
           key={toast.id}
-          initial={{ opacity: 0, x: 50, scale: 0.9 }}
-          animate={{ opacity: 1, x: 0, scale: 1 }}
-          exit={{ opacity: 0, x: 20, scale: 0.9 }}
+          initial={{ opacity: 0, y: -20, scale: 0.9 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: -20, scale: 0.9 }}
           className={`
-            pointer-events-auto flex items-center gap-3 px-5 py-4 rounded-2xl border backdrop-blur-xl shadow-2xl min-w-[300px]
+            pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-xl border backdrop-blur-xl shadow-2xl w-full
             ${
               toast.type === "success"
-                ? "bg-emerald-900/20 border-emerald-500/30 text-emerald-200"
+                ? "bg-emerald-900/80 border-emerald-500/30 text-emerald-100"
                 : toast.type === "error"
-                ? "bg-red-900/20 border-red-500/30 text-red-200"
-                : "bg-white/10 border-white/10 text-white"
+                ? "bg-red-900/80 border-red-500/30 text-red-100"
+                : "bg-slate-800/80 border-white/10 text-white"
             }
           `}
         >
           {toast.type === "success" && (
-            <CheckCircle size={20} className="text-emerald-400" />
+            <CheckCircle size={18} className="text-emerald-400 flex-shrink-0" />
           )}
           {toast.type === "error" && (
-            <AlertCircle size={20} className="text-red-400" />
+            <AlertCircle size={18} className="text-red-400 flex-shrink-0" />
           )}
           {toast.type === "info" && (
-            <Sparkles size={20} className="text-violet-400" />
+            <Sparkles size={18} className="text-violet-400 flex-shrink-0" />
           )}
-          <div>
-            <p className="text-sm font-bold">{toast.title}</p>
-            <p className="text-xs opacity-80">{toast.message}</p>
+          <div className="min-w-0">
+            <p className="text-sm font-bold truncate">{toast.title}</p>
+            <p className="text-xs opacity-80 line-clamp-1">{toast.message}</p>
           </div>
         </motion.div>
       ))}
@@ -304,8 +306,6 @@ export default function LearnXRoyal() {
 
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [toasts, setToasts] = useState([]);
-
-  // Settings Form State
   const [tempName, setTempName] = useState("");
 
   const addToast = (title, message, type = "info") => {
@@ -367,11 +367,7 @@ export default function LearnXRoyal() {
     setView("app");
 
     if (!hasWelcomed.current) {
-      addToast(
-        "Welcome Back",
-        `System online. Hello, ${data?.display_name || "Student"}.`,
-        "success"
-      );
+      addToast("Welcome Back", `System online.`, "success");
       hasWelcomed.current = true;
     }
   };
@@ -470,11 +466,7 @@ export default function LearnXRoyal() {
         mimeType: file.type,
       };
       await createNewChat(docData);
-      addToast(
-        "Data Uploaded",
-        `${file.name} processed successfully.`,
-        "success"
-      );
+      addToast("Data Uploaded", `${file.name} processed.`, "success");
     };
     if (isImage || isPdf) reader.readAsDataURL(file);
     else reader.readAsText(file);
@@ -537,11 +529,7 @@ export default function LearnXRoyal() {
     try {
       await supabase.from("chats").delete().eq("id", deleteTarget);
       if (currentChatId === deleteTarget) setCurrentChatId(null);
-      addToast(
-        "Protocol Purged",
-        "Session data permanently deleted.",
-        "success"
-      );
+      addToast("Protocol Purged", "Session deleted.", "success");
     } catch (e) {
       addToast("Deletion Failed", "Could not remove session.", "error");
     } finally {
@@ -551,11 +539,7 @@ export default function LearnXRoyal() {
 
   const handleSaveSettings = async () => {
     if (apiKey.trim().startsWith("npm")) {
-      addToast(
-        "Invalid Key",
-        "You pasted a terminal command, not a key!",
-        "error"
-      );
+      addToast("Invalid Key", "You pasted a terminal command!", "error");
       return;
     }
 
@@ -569,47 +553,47 @@ export default function LearnXRoyal() {
       if (!error) {
         setUserProfile((prev) => ({ ...prev, display_name: tempName }));
       } else {
-        addToast("Update Failed", "Could not update display name.", "error");
+        addToast("Update Failed", "Could not update name.", "error");
         return;
       }
     }
 
     setShowSettings(false);
-    addToast("Config Saved", "System parameters updated.", "success");
+    addToast("Saved", "Settings updated.", "success");
   };
 
   // --- Render ---
 
   if (view === "loading")
     return (
-      <div className="h-screen bg-black flex items-center justify-center">
+      <div className="h-[100dvh] bg-black flex items-center justify-center">
         <GlobalStyles />
-        <Loader2 className="text-violet-500 w-10 h-10 animate-spin" />
+        <Loader2 className="text-violet-500 w-8 h-8 animate-spin" />
       </div>
     );
 
   if (view === "login")
     return (
-      <div className="h-screen w-full bg-black relative overflow-hidden flex items-center justify-center">
+      <div className="h-[100dvh] w-full bg-black relative overflow-hidden flex items-center justify-center">
         <GlobalStyles />
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-[-20%] left-[-10%] w-[60vw] h-[60vw] rounded-full bg-violet-900/20 blur-[120px] animate-blob" />
-          <div className="absolute bottom-[-20%] right-[-10%] w-[60vw] h-[60vw] rounded-full bg-cyan-900/20 blur-[120px] animate-blob animation-delay-2000" />
+          <div className="absolute top-[-20%] left-[-10%] w-[60vw] h-[60vw] rounded-full bg-violet-900/20 blur-[100px]" />
+          <div className="absolute bottom-[-20%] right-[-10%] w-[60vw] h-[60vw] rounded-full bg-cyan-900/20 blur-[100px]" />
         </div>
 
-        <div className="relative z-10 p-10 rounded-3xl bg-white/5 backdrop-blur-2xl border border-white/10 max-w-md w-full text-center shadow-2xl flex flex-col items-center">
-          <div className="mb-8 flex justify-center">
-            <div className="w-20 h-20 rounded-2xl bg-gradient-to-tr from-violet-600 to-indigo-600 flex items-center justify-center shadow-[0_0_30px_rgba(139,92,246,0.6)]">
-              <Crown className="text-white w-10 h-10" />
+        <div className="relative z-10 p-6 w-[90%] max-w-md bg-white/5 backdrop-blur-2xl border border-white/10 rounded-3xl text-center shadow-2xl flex flex-col items-center">
+          <div className="mb-6 flex justify-center">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-violet-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-violet-600/40">
+              <Crown className="text-white w-8 h-8" />
             </div>
           </div>
-          <h1 className="text-5xl font-black tracking-tighter text-white mb-2">
+          <h1 className="text-4xl font-black tracking-tighter text-white mb-2">
             LEARN
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-cyan-400">
               X
             </span>
           </h1>
-          <p className="text-slate-400 mb-8 font-light tracking-wide">
+          <p className="text-slate-400 mb-8 font-light text-sm">
             The Elite Intelligence Platform
           </p>
           <div className="w-full flex justify-center">
@@ -617,7 +601,7 @@ export default function LearnXRoyal() {
               onClick={handleLogin}
               variant="primary"
               fullWidth
-              className="py-4 text-lg w-full"
+              className="py-3.5 text-base w-full"
             >
               Initialize System
             </Button>
@@ -627,169 +611,191 @@ export default function LearnXRoyal() {
     );
 
   return (
-    <div className="flex h-screen w-full overflow-hidden bg-[#050505] text-slate-200 relative">
+    <div className="flex h-[100dvh] w-full overflow-hidden bg-[#050505] text-slate-200 relative">
       <GlobalStyles />
       <ToastContainer toasts={toasts} />
 
       <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-[-10%] left-[-10%] w-[40vw] h-[40vw] bg-violet-900/10 blur-[150px] rounded-full animate-pulse" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[40vw] h-[40vw] bg-cyan-900/10 blur-[150px] rounded-full animate-pulse" />
+        <div className="absolute top-[-10%] left-[-10%] w-[40vw] h-[40vw] bg-violet-900/10 blur-[150px] opacity-50" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[40vw] h-[40vw] bg-cyan-900/10 blur-[150px] opacity-50" />
       </div>
 
+      {/* Mobile Sidebar Overlay */}
       <AnimatePresence>
-        <motion.aside
-          initial={{ x: -300, opacity: 0 }}
-          animate={{
-            x: sidebarOpen || window.innerWidth > 768 ? 0 : -300,
-            opacity: 1,
-          }}
-          className={`
-            fixed md:static inset-y-0 left-0 z-50 w-80 flex flex-col
-            bg-[#09090b]/60 backdrop-blur-2xl border-r border-white/5 relative
-          `}
-        >
-          <div className="p-6 border-b border-white/5 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-violet-600 to-blue-600 rounded-lg flex items-center justify-center shadow-lg shadow-violet-500/20">
-                <Crown size={20} className="text-white" />
+        {sidebarOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] md:hidden"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Sidebar */}
+      <motion.aside
+        className={`
+          fixed md:static inset-y-0 left-0 z-[70] w-80 flex flex-col
+          bg-[#09090b] border-r border-white/5 shadow-2xl md:shadow-none
+          transform transition-transform duration-300 ease-in-out
+          ${
+            sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+          }
+        `}
+      >
+        <div className="p-5 border-b border-white/5 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 bg-gradient-to-br from-violet-600 to-blue-600 rounded-lg flex items-center justify-center shadow-lg shadow-violet-500/20">
+              <Crown size={18} className="text-white" />
+            </div>
+            <div>
+              <h1 className="font-bold text-base text-white tracking-tight">
+                LEARN<span className="text-violet-400">X</span>
+              </h1>
+              <span className="text-[9px] bg-white/10 px-1.5 py-0.5 rounded text-slate-400 uppercase tracking-widest border border-white/5">
+                Royal Ed.
+              </span>
+            </div>
+          </div>
+          <button
+            className="md:hidden p-2 text-slate-400"
+            onClick={() => setSidebarOpen(false)}
+          >
+            <X size={20} />
+          </button>
+        </div>
+
+        <div className="p-4 space-y-3">
+          <button
+            onClick={() => {
+              createNewChat(null);
+              setSidebarOpen(false);
+            }}
+            className="w-full group relative overflow-hidden p-3.5 rounded-xl bg-gradient-to-r from-violet-600/10 to-blue-600/10 border border-violet-500/20 transition-all"
+          >
+            <div className="flex items-center gap-3 relative z-10">
+              <div className="w-7 h-7 rounded-full bg-violet-500 flex items-center justify-center text-white shadow-md">
+                <Plus size={14} />
               </div>
-              <div>
-                <h1 className="font-bold text-lg text-white tracking-tight">
-                  LEARN<span className="text-violet-400">X</span>
-                </h1>
-                <span className="text-[9px] bg-white/10 px-2 py-0.5 rounded text-slate-400 uppercase tracking-widest border border-white/5">
-                  Royal Ed.
+              <div className="text-left">
+                <span className="block font-bold text-white text-xs">
+                  New Protocol
+                </span>
+                <span className="text-[9px] text-violet-300">
+                  General intelligence query
                 </span>
               </div>
             </div>
-            <button
-              className="md:hidden p-2 text-slate-400"
-              onClick={() => setSidebarOpen(false)}
-            >
-              <X size={20} />
-            </button>
-          </div>
+          </button>
 
-          <div className="p-4 space-y-3">
-            <button
-              onClick={() => createNewChat(null)}
-              className="w-full group relative overflow-hidden p-4 rounded-xl bg-gradient-to-r from-violet-600/10 to-blue-600/10 border border-violet-500/20 hover:border-violet-400/50 transition-all"
-            >
-              <div className="flex items-center gap-3 relative z-10">
-                <div className="w-8 h-8 rounded-full bg-violet-500 flex items-center justify-center text-white shadow-lg shadow-violet-500/40">
-                  <Plus size={16} />
-                </div>
-                <div className="text-left">
-                  <span className="block font-bold text-white text-sm">
-                    New Protocol
-                  </span>
-                  <span className="text-[10px] text-violet-300">
-                    General intelligence query
-                  </span>
-                </div>
+          <label className="cursor-pointer w-full block group relative p-3.5 rounded-xl bg-[#121214] border border-white/5 active:bg-[#1a1a1e] transition-all">
+            <input
+              type="file"
+              className="hidden"
+              onChange={(e) => {
+                handleFileRead(e.target.files[0]);
+                setSidebarOpen(false);
+              }}
+            />
+            <div className="flex items-center gap-3">
+              <div className="w-7 h-7 rounded-full bg-[#27272a] flex items-center justify-center text-slate-300">
+                <Upload size={14} />
               </div>
-            </button>
-
-            <label className="cursor-pointer w-full block group relative p-4 rounded-xl bg-[#121214] border border-white/5 hover:bg-[#1a1a1e] transition-all">
-              <input
-                type="file"
-                className="hidden"
-                onChange={(e) => handleFileRead(e.target.files[0])}
-              />
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-[#27272a] flex items-center justify-center text-slate-300 group-hover:text-white transition-colors">
-                  <Upload size={14} />
-                </div>
-                <div className="text-left">
-                  <span className="block font-medium text-slate-200 text-sm group-hover:text-white">
-                    Upload Data
-                  </span>
-                  <span className="text-[10px] text-slate-500">
-                    PDF, Images, Text
-                  </span>
-                </div>
+              <div className="text-left">
+                <span className="block font-medium text-slate-200 text-xs">
+                  Upload Data
+                </span>
+                <span className="text-[9px] text-slate-500">
+                  PDF, Images, Text
+                </span>
               </div>
-            </label>
-          </div>
+            </div>
+          </label>
+        </div>
 
-          <div className="flex-1 overflow-y-auto px-4 py-2 space-y-1">
-            <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest px-2 mb-2">
-              Active Sessions
-            </p>
-            {chats.map((chat) => (
-              <motion.div
-                key={chat.id}
-                layoutId={chat.id}
-                onClick={() => {
-                  setCurrentChatId(chat.id);
-                  setSidebarOpen(false);
-                }}
-                className={`
-                  group relative p-3 rounded-lg cursor-pointer transition-all border
+        <div className="flex-1 overflow-y-auto px-4 py-2 space-y-1">
+          <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest px-2 mb-2">
+            Sessions
+          </p>
+          {chats.map((chat) => (
+            <div
+              key={chat.id}
+              onClick={() => {
+                setCurrentChatId(chat.id);
+                setSidebarOpen(false);
+              }}
+              className={`
+                  group relative p-3 rounded-lg cursor-pointer transition-all border flex items-center justify-between
                   ${
                     currentChatId === chat.id
-                      ? "bg-white/5 border-violet-500/50 shadow-[0_0_15px_rgba(139,92,246,0.1)]"
-                      : "bg-transparent border-transparent hover:bg-white/5 hover:border-white/5"
+                      ? "bg-white/5 border-violet-500/50"
+                      : "bg-transparent border-transparent active:bg-white/5"
                   }
                 `}
+            >
+              <span
+                className={`text-xs truncate max-w-[180px] ${
+                  currentChatId === chat.id
+                    ? "text-white font-medium"
+                    : "text-slate-400"
+                }`}
               >
-                {currentChatId === chat.id && (
-                  <div className="absolute left-0 top-3 bottom-3 w-1 bg-violet-500 rounded-r-full shadow-[0_0_10px_#8b5cf6]" />
-                )}
-                <div className="flex items-center justify-between pl-3">
-                  <span
-                    className={`text-sm truncate max-w-[180px] ${
-                      currentChatId === chat.id
-                        ? "text-white font-medium"
-                        : "text-slate-400"
-                    }`}
-                  >
-                    {chat.title}
-                  </span>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setDeleteTarget(chat.id);
-                    }}
-                    className="opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-300 transition-opacity p-1 hover:bg-white/10 rounded"
-                  >
-                    <Trash2 size={14} />
-                  </button>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-
-          <div className="p-4 border-t border-white/5 bg-black/20">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-full bg-gradient-to-r from-pink-500 to-rose-500 flex items-center justify-center text-white font-bold border border-white/20">
-                {userProfile?.display_name?.[0]}
-              </div>
-              <div className="flex-1 overflow-hidden">
-                <p className="text-sm font-bold text-white truncate">
-                  {userProfile?.display_name}
-                </p>
-                <p className="text-[10px] text-emerald-400 flex items-center gap-1">
-                  <Shield size={8} /> Secure Connection
-                </p>
-              </div>
-              <button
-                onClick={() => setShowSettings(true)}
-                className="text-slate-500 hover:text-white transition-colors"
-              >
-                <Settings size={18} />
-              </button>
+                {chat.title}
+              </span>
+              {currentChatId === chat.id && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setDeleteTarget(chat.id);
+                  }}
+                  className="text-red-400 p-1 rounded hover:bg-white/10"
+                >
+                  <Trash2 size={12} />
+                </button>
+              )}
             </div>
+          ))}
+        </div>
+
+        <div className="p-4 border-t border-white/5 bg-black/20">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-r from-pink-500 to-rose-500 flex items-center justify-center text-white font-bold border border-white/20 text-xs">
+              {userProfile?.display_name?.[0]}
+            </div>
+            <div className="flex-1 overflow-hidden">
+              <p className="text-xs font-bold text-white truncate">
+                {userProfile?.display_name}
+              </p>
+              <p className="text-[9px] text-emerald-400 flex items-center gap-1">
+                <Shield size={8} /> Secure
+              </p>
+            </div>
+            <button
+              onClick={() => {
+                setShowSettings(true);
+                setSidebarOpen(false);
+              }}
+              className="text-slate-500 hover:text-white"
+            >
+              <Settings size={16} />
+            </button>
           </div>
-        </motion.aside>
-      </AnimatePresence>
+        </div>
+      </motion.aside>
 
       <main className="flex-1 relative flex flex-col h-full overflow-hidden z-10">
-        <div className="md:hidden h-16 border-b border-white/5 flex items-center justify-between px-4 bg-[#050505]/80 backdrop-blur">
-          <button onClick={() => setSidebarOpen(true)} className="text-white">
-            <Menu />
+        {/* Mobile Header */}
+        <div className="md:hidden h-14 border-b border-white/5 flex items-center justify-between px-4 bg-[#050505]/90 backdrop-blur-md z-40 sticky top-0">
+          <button
+            onClick={() => setSidebarOpen(true)}
+            className="text-white p-1"
+          >
+            <Menu size={20} />
           </button>
-          <span className="font-bold text-white">LEARN X</span>
+          <span className="font-bold text-white text-sm tracking-wide">
+            LEARN X
+          </span>
           <div
             className={`w-2 h-2 rounded-full ${
               apiKey
@@ -799,6 +805,7 @@ export default function LearnXRoyal() {
           />
         </div>
 
+        {/* Desktop Status */}
         <div className="hidden md:flex absolute top-6 right-8 z-30 items-center gap-3">
           {uploadedContent && (
             <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-md">
@@ -829,31 +836,30 @@ export default function LearnXRoyal() {
         </div>
 
         {!currentChatId ? (
-          <div className="flex-1 flex flex-col items-center justify-center p-6 text-center z-10">
+          <div className="flex-1 flex flex-col items-center justify-center p-4 text-center z-10">
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              className="relative"
+              className="relative w-full max-w-lg"
             >
-              <div className="absolute inset-0 bg-violet-600/20 blur-[80px] rounded-full pointer-events-none"></div>
-              <div className="w-32 h-32 bg-black border border-white/10 rounded-3xl flex items-center justify-center shadow-2xl relative z-10 mx-auto mb-8">
-                <Cpu className="text-white w-16 h-16" />
+              <div className="w-20 h-20 md:w-28 md:h-28 bg-black border border-white/10 rounded-3xl flex items-center justify-center shadow-2xl relative z-10 mx-auto mb-6">
+                <Cpu className="text-white w-10 h-10 md:w-14 md:h-14" />
               </div>
-              <h2 className="text-4xl md:text-6xl font-black text-white mb-4 tracking-tighter uppercase">
+              <h2 className="text-2xl md:text-5xl font-black text-white mb-3 tracking-tighter uppercase">
                 WELCOME{" "}
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-cyan-400">
                   {userProfile?.display_name || "STUDENT"}
                 </span>
               </h2>
-              <p className="text-slate-400 max-w-lg mx-auto text-lg mb-8 leading-relaxed">
+              <p className="text-slate-400 text-sm md:text-base mb-8 leading-relaxed px-2">
                 The neural interface is ready. Upload data for analysis or
                 initialize a general query protocol.
               </p>
-              <div className="flex gap-4 justify-center">
+              <div className="flex justify-center">
                 <Button
                   onClick={() => createNewChat(null)}
                   variant="royal"
-                  className="shadow-violet-500/20"
+                  className="shadow-violet-500/20 w-full md:w-auto"
                 >
                   Initialize Protocol
                 </Button>
@@ -862,37 +868,36 @@ export default function LearnXRoyal() {
           </div>
         ) : (
           <div className="flex-1 overflow-y-auto p-4 md:p-8 scroll-smooth">
-            <div className="max-w-4xl mx-auto space-y-8 pb-48 pt-10">
+            <div className="max-w-4xl mx-auto space-y-5 md:space-y-8 pb-32 md:pb-48 pt-2 md:pt-10">
               {messages.map((msg, idx) => (
                 <motion.div
                   key={idx}
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4 }}
-                  className={`flex gap-4 ${
+                  className={`flex gap-2 md:gap-4 ${
                     msg.role === "user" ? "flex-row-reverse" : "flex-row"
                   }`}
                 >
                   <div
                     className={`
-                                flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center border shadow-lg
+                                flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center border shadow-lg mt-1
                                 ${
                                   msg.role === "model"
-                                    ? "bg-black border-violet-500/30 text-violet-400 shadow-violet-500/10"
-                                    : "bg-white text-black border-white shadow-white/10"
+                                    ? "bg-black border-violet-500/30 text-violet-400"
+                                    : "bg-white text-black border-white"
                                 }
                             `}
                   >
                     {msg.role === "model" ? (
-                      <Sparkles size={18} />
+                      <Sparkles size={14} />
                     ) : (
-                      <User size={18} />
+                      <User size={14} />
                     )}
                   </div>
 
                   <div
                     className={`
-                                max-w-[85%] md:max-w-[75%] p-6 rounded-3xl relative overflow-hidden
+                                max-w-[85%] md:max-w-[75%] p-3 md:p-5 rounded-2xl relative overflow-hidden text-sm md:text-base
                                 ${
                                   msg.role === "user"
                                     ? "bg-gradient-to-br from-white to-slate-300 text-black rounded-tr-sm font-medium"
@@ -908,14 +913,10 @@ export default function LearnXRoyal() {
                       }`}
                     >
                       {msg.role === "model" && (
-                        <div className="flex items-center gap-2 mb-3 pb-2 border-b border-white/5">
-                          <span className="text-[10px] text-violet-400 font-bold uppercase tracking-widest">
+                        <div className="flex items-center gap-2 mb-2 pb-2 border-b border-white/5">
+                          <span className="text-[9px] text-violet-400 font-bold uppercase tracking-widest">
                             Nexus Core
                           </span>
-                          <div className="flex gap-1">
-                            <div className="w-1 h-1 bg-violet-500 rounded-full animate-pulse" />
-                            <div className="w-1 h-1 bg-cyan-500 rounded-full animate-pulse delay-75" />
-                          </div>
                         </div>
                       )}
                       <div
@@ -928,13 +929,13 @@ export default function LearnXRoyal() {
                 </motion.div>
               ))}
               {isProcessing && (
-                <div className="flex gap-4 animate-pulse">
-                  <div className="w-10 h-10 bg-black border border-violet-500/30 rounded-xl flex items-center justify-center">
-                    <Loader2 className="w-5 h-5 text-violet-500 animate-spin" />
+                <div className="flex gap-3 animate-pulse">
+                  <div className="w-8 h-8 bg-black border border-violet-500/30 rounded-lg flex items-center justify-center">
+                    <Loader2 className="w-4 h-4 text-violet-500 animate-spin" />
                   </div>
-                  <div className="h-10 flex items-center">
-                    <span className="text-xs text-violet-400 font-mono">
-                      ANALYZING DATA STREAM...
+                  <div className="h-8 flex items-center">
+                    <span className="text-[10px] text-violet-400 font-mono">
+                      PROCESSING...
                     </span>
                   </div>
                 </div>
@@ -944,43 +945,43 @@ export default function LearnXRoyal() {
           </div>
         )}
 
+        {/* Input Bar */}
         {currentChatId && (
-          <div className="absolute bottom-0 left-0 w-full z-40">
-            <div className="absolute bottom-0 inset-x-0 h-48 bg-gradient-to-t from-[#050505] via-[#050505] to-transparent pointer-events-none" />
+          <div className="fixed md:absolute bottom-0 left-0 w-full z-30">
+            {/* Void Gradient */}
+            <div className="absolute bottom-0 inset-x-0 h-32 bg-gradient-to-t from-[#050505] via-[#050505] to-transparent pointer-events-none" />
 
-            <div className="relative pb-6 px-4 flex justify-center">
+            <div className="relative pb-4 md:pb-6 px-3 md:px-4 flex justify-center">
               <div className="w-full md:w-[800px] relative group">
-                <div className="absolute -inset-[1px] bg-gradient-to-r from-violet-600 via-cyan-500 to-purple-600 rounded-2xl opacity-50 blur-md group-hover:opacity-100 transition duration-500 animate-pulse"></div>
-                <div className="relative bg-[#0a0a0a] rounded-2xl flex items-center p-2 border border-white/10 shadow-2xl">
+                <div className="absolute -inset-[1px] bg-gradient-to-r from-violet-600 via-cyan-500 to-purple-600 rounded-2xl opacity-50 blur-md transition duration-500 animate-pulse"></div>
+                <div className="relative bg-[#0a0a0a] rounded-2xl flex items-center p-1.5 md:p-2 border border-white/10 shadow-2xl">
                   <input
                     type="text"
                     value={inputText}
                     onChange={(e) => setInputText(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && sendMessage()}
                     placeholder={
-                      uploadedContent
-                        ? "Query document data..."
-                        : "Enter command or query..."
+                      uploadedContent ? "Ask about data..." : "Command..."
                     }
                     disabled={isProcessing}
-                    className="flex-1 bg-transparent border-none text-white placeholder-slate-500 px-4 py-3 focus:ring-0 font-medium tracking-wide outline-none"
+                    className="flex-1 bg-transparent border-none text-white placeholder-slate-500 px-3 py-3 focus:ring-0 font-medium tracking-wide outline-none text-sm md:text-base"
                   />
                   <button
                     onClick={sendMessage}
                     disabled={!inputText.trim() || isProcessing}
-                    className="p-3 bg-white text-black rounded-xl hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:scale-100 shadow-[0_0_15px_rgba(255,255,255,0.3)]"
+                    className="p-2.5 md:p-3 bg-white text-black rounded-xl active:scale-95 transition-all disabled:opacity-50 disabled:scale-100 shadow-[0_0_15px_rgba(255,255,255,0.3)]"
                   >
                     {isProcessing ? (
-                      <Loader2 size={20} className="animate-spin" />
+                      <Loader2 size={18} className="animate-spin" />
                     ) : (
-                      <ArrowRight size={20} />
+                      <ArrowRight size={18} />
                     )}
                   </button>
                 </div>
               </div>
             </div>
 
-            <p className="text-center text-[9px] text-slate-600 pb-2 font-mono uppercase tracking-widest relative z-50">
+            <p className="hidden md:block text-center text-[9px] text-slate-600 pb-2 font-mono uppercase tracking-widest relative z-50">
               AI-Powered • End-to-End Encrypted • Nexus v2.0
             </p>
           </div>
@@ -992,15 +993,14 @@ export default function LearnXRoyal() {
           onClose={() => setDeleteTarget(null)}
         >
           <div className="text-center">
-            <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-red-500/20">
-              <Trash2 className="text-red-500 w-8 h-8" />
+            <div className="w-14 h-14 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-red-500/20">
+              <Trash2 className="text-red-500 w-6 h-6" />
             </div>
             <p className="text-slate-400 text-sm mb-6 leading-relaxed">
-              Warning: This action is irreversible. All neural data and chat
-              history associated with this session will be permanently erased
-              from the core.
+              Irreversible action. All chat history for this session will be
+              erased.
             </p>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-3">
               <Button
                 variant="glass"
                 onClick={() => setDeleteTarget(null)}
@@ -1013,7 +1013,7 @@ export default function LearnXRoyal() {
                 onClick={confirmDelete}
                 className="w-full"
               >
-                Confirm Purge
+                Purge
               </Button>
             </div>
           </div>
@@ -1065,16 +1065,18 @@ export default function LearnXRoyal() {
                 Cancel
               </Button>
               <Button variant="royal" onClick={handleSaveSettings}>
-                Save Changes
+                Save
               </Button>
             </div>
             <div className="mt-6 pt-6 border-t border-white/5 flex justify-between items-center">
-              <span className="text-xs text-slate-500">ID: {user?.email}</span>
+              <span className="text-xs text-slate-500 truncate max-w-[150px]">
+                ID: {user?.email}
+              </span>
               <button
                 onClick={() => supabase.auth.signOut()}
                 className="text-xs text-red-400 hover:text-red-300"
               >
-                Terminte Session
+                Sign Out
               </button>
             </div>
           </div>
