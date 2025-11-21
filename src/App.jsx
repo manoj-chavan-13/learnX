@@ -306,7 +306,7 @@ export default function LearnXRoyal() {
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [toasts, setToasts] = useState([]);
   const [tempName, setTempName] = useState("");
-
+  const [isUploading, setIsUploading] = useState(false);
   const addToast = (title, message, type = "info") => {
     const id = Date.now();
     setToasts((prev) => [...prev, { id, title, message, type }]);
@@ -452,6 +452,10 @@ export default function LearnXRoyal() {
 
   const handleFileRead = async (file) => {
     if (!file) return;
+
+    setIsUploading(true); // Start Animation
+    setSidebarOpen(false); // Close sidebar immediately
+
     const reader = new FileReader();
     const isImage = file.type.startsWith("image/");
     const isPdf = file.type === "application/pdf";
@@ -463,8 +467,18 @@ export default function LearnXRoyal() {
         name: file.name,
         mimeType: file.type,
       };
-      await createNewChat(docData);
-      addToast("Data Uploaded", `${file.name} processed.`, "success");
+      try {
+        await createNewChat(docData);
+        addToast(
+          "Data Uploaded",
+          `${file.name} processed successfully.`,
+          "success"
+        );
+      } catch (error) {
+        addToast("Upload Failed", "Could not process file.", "error");
+      } finally {
+        setIsUploading(false); // Stop Animation
+      }
     };
     if (isImage || isPdf) reader.readAsDataURL(file);
     else reader.readAsText(file);
@@ -1119,6 +1133,56 @@ export default function LearnXRoyal() {
           </div>
         </Modal>
       </main>
+
+      {/* UPLOAD OVERLAY ANIMATION */}
+      <AnimatePresence>
+        {isUploading && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[200] bg-[#050505]/90 backdrop-blur-xl flex flex-col items-center justify-center"
+          >
+            {/* Animated Orb */}
+            <div className="relative mb-8">
+              <div className="absolute inset-0 bg-violet-500 rounded-full blur-xl animate-pulse opacity-50"></div>
+              <div className="relative w-20 h-20 bg-black border border-violet-500/30 rounded-full flex items-center justify-center shadow-[0_0_30px_rgba(139,92,246,0.3)]">
+                <Loader2 size={40} className="text-violet-400 animate-spin" />
+              </div>
+
+              {/* Orbiting Particles */}
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                className="absolute inset-0 rounded-full border-t border-l border-transparent border-cyan-500/50 w-full h-full scale-125"
+              />
+            </div>
+
+            {/* Text Content */}
+            <motion.h2
+              initial={{ y: 10, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              className="text-2xl font-bold text-white tracking-tight mb-2"
+            >
+              ANALYZING DATA
+            </motion.h2>
+
+            <p className="text-slate-400 text-sm font-mono uppercase tracking-widest animate-pulse">
+              Encrypting & Vectorizing...
+            </p>
+
+            {/* Progress Bar */}
+            <div className="w-64 h-1 bg-white/10 rounded-full mt-8 overflow-hidden relative">
+              <motion.div
+                initial={{ x: "-100%" }}
+                animate={{ x: "100%" }}
+                transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+                className="absolute inset-0 bg-gradient-to-r from-transparent via-violet-500 to-transparent w-1/2"
+              />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
