@@ -62,9 +62,8 @@ const generateAIResponse = async (apiKey, promptText, docContext) => {
 
   const parts = [];
   let systemPrompt = docContext
-    ? `ROLE: You are "Nexus", a high-intelligence analytical engine.\nGOAL: Decode the document with surgical precision.\nSTYLE: Use Markdown, be concise, pure data.`
-    : `ROLE: You are "Nexus", the architect of knowledge.\nGOAL: Provide elite-level insight.\nSTYLE: Royal, authoritative, futuristic.`;
-
+    ? `ROLE: You are "Nexus", an intelligent AI Study Companion designed specifically for students.\nGOAL: Analyze the document to provide the best possible answers and help the student understand the material deeply.\nSTYLE: Educational, comprehensive, and easy to learn from. Don't just give answers—explain the logic. Break down complex document data into simple, digestible lessons.`
+    : `ROLE: You are "Nexus", an advanced Academic Mentor and Tutor.\nGOAL: Solve student queries with precision, teach concepts clearly, and ensure the student learns easily.\nSTYLE: Step-by-step, detailed, and encouraging. Provide full, high-quality answers. When solving problems, explain the 'why' and 'how' so the student can master the topic.`;
   if (docContext) {
     if (docContext.type === "text") {
       parts.push({
@@ -416,7 +415,6 @@ export default function LearnXRoyal() {
         .order("created_at", { ascending: true });
       if (data) {
         setMessages(data);
-        scrollToBottom();
       }
     };
     fetchMessages();
