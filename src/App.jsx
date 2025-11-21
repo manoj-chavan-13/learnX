@@ -563,48 +563,87 @@ export default function LearnXRoyal() {
   };
 
   // --- Render ---
-
   if (view === "loading")
     return (
-      <div className="h-[100dvh] bg-black flex items-center justify-center">
+      <div className="min-h-screen bg-black flex flex-col items-center justify-center gap-4">
         <GlobalStyles />
-        <Loader2 className="text-violet-500 w-8 h-8 animate-spin" />
+        <div className="relative">
+          <div className="absolute inset-0 bg-violet-500/20 blur-xl rounded-full animate-pulse" />
+          <Loader2 className="relative z-10 text-violet-500 w-10 h-10 animate-spin" />
+        </div>
+        <p className="text-neutral-500 text-sm font-medium tracking-wider animate-pulse">
+          ESTABLISHING CONNECTION...
+        </p>
       </div>
     );
 
   if (view === "login")
     return (
-      <div className="h-[100dvh] w-full bg-black relative overflow-hidden flex items-center justify-center">
+      <div className="min-h-screen w-full bg-[#050505] relative overflow-hidden flex items-center justify-center p-4 sm:p-6">
         <GlobalStyles />
+
+        {/* Ambient Background - Made slightly more subtle for professionalism */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-[-20%] left-[-10%] w-[60vw] h-[60vw] rounded-full bg-violet-900/20 blur-[100px]" />
-          <div className="absolute bottom-[-20%] right-[-10%] w-[60vw] h-[60vw] rounded-full bg-cyan-900/20 blur-[100px]" />
+          <div className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-violet-900/10 blur-[100px] animate-blob" />
+          <div className="absolute bottom-[-10%] right-[-10%] w-[50vw] h-[50vw] rounded-full bg-cyan-900/10 blur-[100px] animate-blob animation-delay-2000" />
         </div>
 
-        <div className="relative z-10 p-6 w-[90%] max-w-md bg-white/5 backdrop-blur-2xl border border-white/10 rounded-3xl text-center shadow-2xl flex flex-col items-center">
-          <div className="mb-6 flex justify-center">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-violet-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-violet-600/40">
-              <Crown className="text-white w-8 h-8" />
+        {/* Main Card */}
+        <div className="relative z-10 w-full max-w-[420px] flex flex-col">
+          {/* Glass Container */}
+          <div className="backdrop-blur-3xl bg-white/[0.03] border border-white/[0.08] rounded-3xl shadow-2xl p-8 sm:p-10 flex flex-col items-center text-center ring-1 ring-white/5">
+            {/* Logo Section */}
+            <div className="mb-8 relative group">
+              <div className="absolute inset-0 bg-gradient-to-tr from-violet-600 to-cyan-600 rounded-2xl blur-lg opacity-40 group-hover:opacity-60 transition-opacity duration-500" />
+              <div className="relative w-16 h-16 rounded-2xl bg-gradient-to-tr from-violet-900 to-slate-900 border border-white/10 flex items-center justify-center shadow-inner">
+                <Crown className="text-white w-8 h-8" strokeWidth={1.5} />
+              </div>
+            </div>
+
+            {/* Header Text */}
+            <div className="space-y-2 mb-10">
+              <h1 className="text-4xl font-bold tracking-tight text-white">
+                LEARN
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-cyan-400">
+                  X
+                </span>
+              </h1>
+              <p className="text-slate-400 text-sm font-normal leading-relaxed">
+                The Elite Intelligence Platform
+              </p>
+            </div>
+
+            {/* Action Section */}
+            <div className="w-full space-y-4">
+              <Button
+                onClick={handleLogin}
+                variant="primary"
+                fullWidth
+                className="group relative py-3.5 text-base font-medium transition-all duration-200 hover:shadow-lg hover:shadow-violet-500/25 active:scale-[0.98]"
+              >
+                <span className="flex items-center justify-center gap-2">
+                  Initialize System
+                  <ArrowRight className="w-4 h-4 opacity-70 group-hover:translate-x-1 transition-transform" />
+                </span>
+              </Button>
+
+              <p className="text-xs text-slate-600 pt-4 border-t border-white/5">
+                Secure Encrypted Connection
+              </p>
             </div>
           </div>
-          <h1 className="text-4xl font-black tracking-tighter text-white mb-2">
-            LEARN
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-cyan-400">
-              X
-            </span>
-          </h1>
-          <p className="text-slate-400 mb-8 font-light text-sm">
-            The Elite Intelligence Platform
-          </p>
-          <div className="w-full flex justify-center">
-            <Button
-              onClick={handleLogin}
-              variant="primary"
-              fullWidth
-              className="py-3.5 text-base w-full"
-            >
-              Initialize System
-            </Button>
+
+          {/* Footer Links (Optional for standard look) */}
+          <div className="mt-6 flex justify-center gap-6 text-xs text-slate-600 font-medium">
+            <button className="hover:text-slate-400 transition-colors">
+              Privacy
+            </button>
+            <button className="hover:text-slate-400 transition-colors">
+              Terms
+            </button>
+            <button className="hover:text-slate-400 transition-colors">
+              Help
+            </button>
           </div>
         </div>
       </div>
