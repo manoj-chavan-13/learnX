@@ -21,6 +21,7 @@ import {
   Cpu,
   CheckCircle,
   AlertCircle,
+  Edit3,
 } from "lucide-react";
 
 // ==============================================================================
@@ -152,7 +153,7 @@ const GlobalStyles = () => (
     }
     .nexus-content pre { background: #0f0f11 !important; border: 1px solid #333; border-radius: 12px; padding: 1em; overflow-x: auto; }
 
-    /* USER STYLES - FORCE DARK TEXT ON WHITE BUBBLE */
+    /* USER STYLES */
     .user-content p, .user-content span, .user-content strong, .user-content li {
         color: #0f172a !important;
     }
@@ -177,6 +178,7 @@ const Button = ({
   className = "",
   disabled = false,
   icon: Icon,
+  fullWidth = false,
 }) => {
   const variants = {
     primary:
@@ -197,7 +199,7 @@ const Button = ({
       className={`
         relative flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-bold tracking-wide text-sm transition-all duration-300
         disabled:opacity-50 disabled:cursor-not-allowed
-        ${variants[variant]} ${className}
+        ${variants[variant]} ${fullWidth ? "w-full" : ""} ${className}
       `}
     >
       {Icon && <Icon size={18} />}
@@ -298,10 +300,13 @@ export default function LearnXRoyal() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [uploadedContent, setUploadedContent] = useState(null);
   const messagesEndRef = useRef(null);
-  const hasWelcomed = useRef(false); // Guard against duplicate toasts
+  const hasWelcomed = useRef(false);
 
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [toasts, setToasts] = useState([]);
+
+  // Settings Form State
+  const [tempName, setTempName] = useState("");
 
   const addToast = (title, message, type = "info") => {
     const id = Date.now();
@@ -347,18 +352,20 @@ export default function LearnXRoyal() {
       .eq("id", authUser.id)
       .single();
     if (!data) {
+      const defaultName = authUser.email?.split("@")[0] || "Student";
       await client.from("profiles").insert({
         id: authUser.id,
-        display_name: authUser.email?.split("@")[0] || "Student",
+        display_name: defaultName,
         email: authUser.email,
       });
-      setUserProfile({ display_name: authUser.email?.split("@")[0] });
+      setUserProfile({ display_name: defaultName });
+      setTempName(defaultName);
     } else {
       setUserProfile(data);
+      setTempName(data.display_name);
     }
     setView("app");
 
-    // Only show welcome toast ONCE per session
     if (!hasWelcomed.current) {
       addToast(
         "Welcome Back",
@@ -542,6 +549,35 @@ export default function LearnXRoyal() {
     }
   };
 
+  const handleSaveSettings = async () => {
+    if (apiKey.trim().startsWith("npm")) {
+      addToast(
+        "Invalid Key",
+        "You pasted a terminal command, not a key!",
+        "error"
+      );
+      return;
+    }
+
+    localStorage.setItem("gemini_api_key", apiKey);
+
+    if (tempName !== userProfile.display_name && supabase && user) {
+      const { error } = await supabase
+        .from("profiles")
+        .update({ display_name: tempName })
+        .eq("id", user.id);
+      if (!error) {
+        setUserProfile((prev) => ({ ...prev, display_name: tempName }));
+      } else {
+        addToast("Update Failed", "Could not update display name.", "error");
+        return;
+      }
+    }
+
+    setShowSettings(false);
+    addToast("Config Saved", "System parameters updated.", "success");
+  };
+
   // --- Render ---
 
   if (view === "loading")
@@ -561,7 +597,7 @@ export default function LearnXRoyal() {
           <div className="absolute bottom-[-20%] right-[-10%] w-[60vw] h-[60vw] rounded-full bg-cyan-900/20 blur-[120px] animate-blob animation-delay-2000" />
         </div>
 
-        <div className="relative z-10 p-10 rounded-3xl bg-white/5 backdrop-blur-2xl border border-white/10 max-w-md w-full text-center shadow-2xl">
+        <div className="relative z-10 p-10 rounded-3xl bg-white/5 backdrop-blur-2xl border border-white/10 max-w-md w-full text-center shadow-2xl flex flex-col items-center">
           <div className="mb-8 flex justify-center">
             <div className="w-20 h-20 rounded-2xl bg-gradient-to-tr from-violet-600 to-indigo-600 flex items-center justify-center shadow-[0_0_30px_rgba(139,92,246,0.6)]">
               <Crown className="text-white w-10 h-10" />
@@ -576,14 +612,16 @@ export default function LearnXRoyal() {
           <p className="text-slate-400 mb-8 font-light tracking-wide">
             The Elite Intelligence Platform
           </p>
-          <Button
-            onClick={handleLogin}
-            variant="primary"
-            fullWidth
-            className="py-4 text-lg"
-          >
-            Initialize System
-          </Button>
+          <div className="w-full flex justify-center">
+            <Button
+              onClick={handleLogin}
+              variant="primary"
+              fullWidth
+              className="py-4 text-lg w-full"
+            >
+              Initialize System
+            </Button>
+          </div>
         </div>
       </div>
     );
@@ -593,13 +631,11 @@ export default function LearnXRoyal() {
       <GlobalStyles />
       <ToastContainer toasts={toasts} />
 
-      {/* --- BACKGROUND NEBULA (RGB GLOW) --- */}
       <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
         <div className="absolute top-[-10%] left-[-10%] w-[40vw] h-[40vw] bg-violet-900/10 blur-[150px] rounded-full animate-pulse" />
         <div className="absolute bottom-[-10%] right-[-10%] w-[40vw] h-[40vw] bg-cyan-900/10 blur-[150px] rounded-full animate-pulse" />
       </div>
 
-      {/* --- SIDEBAR --- */}
       <AnimatePresence>
         <motion.aside
           initial={{ x: -300, opacity: 0 }}
@@ -748,7 +784,6 @@ export default function LearnXRoyal() {
         </motion.aside>
       </AnimatePresence>
 
-      {/* --- MAIN CONTENT AREA --- */}
       <main className="flex-1 relative flex flex-col h-full overflow-hidden z-10">
         <div className="md:hidden h-16 border-b border-white/5 flex items-center justify-between px-4 bg-[#050505]/80 backdrop-blur">
           <button onClick={() => setSidebarOpen(true)} className="text-white">
@@ -826,7 +861,6 @@ export default function LearnXRoyal() {
             </motion.div>
           </div>
         ) : (
-          /* Chat Area */
           <div className="flex-1 overflow-y-auto p-4 md:p-8 scroll-smooth">
             <div className="max-w-4xl mx-auto space-y-8 pb-48 pt-10">
               {messages.map((msg, idx) => (
@@ -910,7 +944,6 @@ export default function LearnXRoyal() {
           </div>
         )}
 
-        {/* --- GRADIENT INPUT BAR (FIXED BOTTOM) --- */}
         {currentChatId && (
           <div className="absolute bottom-0 left-0 w-full z-40">
             <div className="absolute bottom-0 inset-x-0 h-48 bg-gradient-to-t from-[#050505] via-[#050505] to-transparent pointer-events-none" />
@@ -953,7 +986,6 @@ export default function LearnXRoyal() {
           </div>
         )}
 
-        {/* DELETE MODAL - BUTTONS ALIGNED SIDE BY SIDE */}
         <Modal
           isOpen={!!deleteTarget}
           title="Purge Protocol?"
@@ -987,13 +1019,31 @@ export default function LearnXRoyal() {
           </div>
         </Modal>
 
-        {/* SETTINGS MODAL - BUTTONS ALIGNED RIGHT */}
         <Modal
           isOpen={showSettings}
           title="System Configuration"
           onClose={() => setShowSettings(false)}
         >
           <div className="space-y-4">
+            <div>
+              <label className="text-xs font-bold text-violet-400 uppercase tracking-wider">
+                Display Name
+              </label>
+              <div className="relative mt-2">
+                <input
+                  type="text"
+                  value={tempName}
+                  onChange={(e) => setTempName(e.target.value)}
+                  className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-violet-500 focus:ring-1 focus:ring-violet-500 outline-none transition-all text-sm"
+                  placeholder="Enter your name..."
+                />
+                <Edit3
+                  size={14}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500"
+                />
+              </div>
+            </div>
+
             <div>
               <label className="text-xs font-bold text-violet-400 uppercase tracking-wider">
                 Gemini API Key
@@ -1003,36 +1053,18 @@ export default function LearnXRoyal() {
                 value={apiKey}
                 onChange={(e) => setApiKey(e.target.value)}
                 className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white focus:border-violet-500 focus:ring-1 focus:ring-violet-500 outline-none transition-all font-mono text-sm mt-2"
-                placeholder="Paste your Gemini API Key (starts with 'AIza' or 'sk-')"
+                placeholder="Paste your Gemini API Key..."
               />
               <p className="text-[10px] text-slate-500 mt-2">
-                Do not paste terminal commands. Only paste the key string.
+                Securely stored locally. Never shared.
               </p>
             </div>
+
             <div className="flex justify-end gap-3 pt-4">
               <Button variant="glass" onClick={() => setShowSettings(false)}>
                 Cancel
               </Button>
-              <Button
-                variant="royal"
-                onClick={() => {
-                  if (apiKey.trim().startsWith("npm")) {
-                    addToast(
-                      "Invalid Key",
-                      "You pasted a terminal command, not a key!",
-                      "error"
-                    );
-                    return;
-                  }
-                  localStorage.setItem("gemini_api_key", apiKey);
-                  setShowSettings(false);
-                  addToast(
-                    "Config Saved",
-                    "System parameters updated.",
-                    "success"
-                  );
-                }}
-              >
+              <Button variant="royal" onClick={handleSaveSettings}>
                 Save Changes
               </Button>
             </div>
